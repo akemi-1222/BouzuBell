@@ -19,6 +19,9 @@ public class PlayButtonController : MonoBehaviour,
     [SerializeField]
     private Vector2 _cameraMove = new Vector2(0f, -1.5f);
 
+    [Header("二重振り子の物理演算")]
+    [SerializeField] private DoublePendulumController _pendulum;
+
     [Header("プレイ中に非表示にする画像")]
     [SerializeField] private SpriteRenderer _rightLeftSprite;
     [SerializeField] private SpriteRenderer _connectorArm1Sprite;
@@ -98,6 +101,18 @@ public class PlayButtonController : MonoBehaviour,
 
     private void StartPlay()
     {
+        // 物理演算を準備できなかった場合は開始しない
+        if (_pendulum == null || !_pendulum.BeginSimulation())
+        {
+            Debug.LogError(
+                "二重振り子の参照または設定を確認してください。",
+                this
+            );
+
+            _isPlaying = false;
+            return;
+        }
+
         SetEditMode(false);
 
         _spriteRenderer.sprite = _stopSprite;
@@ -119,6 +134,8 @@ public class PlayButtonController : MonoBehaviour,
 
     private void StopPlay()
     {
+        _pendulum.EndSimulation();
+
         _spriteRenderer.sprite = _playSprite;
 
         //カメラを開始前の状態へ戻す
@@ -129,6 +146,7 @@ public class PlayButtonController : MonoBehaviour,
         transform.position = _initialButtonPosition;
         transform.localScale = _initialButtonScale;
 
+        //非表示にした画像と、停止した操作を戻す
         SetEditMode(true);
     }
 

@@ -20,6 +20,12 @@ public class HammerSelectButtom : MonoBehaviour
     //最初は金属
     private bool _isWood = false;
 
+    //ほかのスクリプトから、木材かどうか確認する
+    public bool IsWood
+    {
+        get { return _isWood; }
+    }
+
     private void Start()
     {
         if (_hammerRenderer == null ||

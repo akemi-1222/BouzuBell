@@ -148,8 +148,7 @@ Transform:
   m_LocalPosition: {x: -5.4975, y: 0.47205323, z: 0}
   m_LocalScale: {x: 1.1089886, y: 0.7156174, z: 0.54817533}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 176992979}
+  m_Children: []
   m_Father: {fileID: 255423519}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 5.67}
 --- !u!212 &129364927
@@ -238,14 +237,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 176992978}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: 0.04945824, w: 0.99877626}
-  m_LocalPosition: {x: 3.97234, y: -9.096453, z: 0}
-  m_LocalScale: {x: 3.4905977, y: -2.5022912, z: 0.60437906}
+  m_LocalRotation: {x: 0, y: -0, z: 0, w: 1}
+  m_LocalPosition: {x: 3.5333588, y: -7.7746005, z: 0}
+  m_LocalScale: {x: 3.3785303, y: -2.1626062, z: 0.3313057}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 540921297}
   - {fileID: 1885858411}
-  m_Father: {fileID: 129364926}
+  m_Father: {fileID: 276305658}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &176992980
 SpriteRenderer:
@@ -356,8 +355,8 @@ CircleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.00000047683716, y: 0.0000009536743}
-  m_Radius: 0.50000006
+  m_Offset: {x: -0.01270311, y: 0.15885092}
+  m_Radius: 0.98480743
 --- !u!1 &255423518
 GameObject:
   m_ObjectHideFlags: 0
@@ -543,6 +542,7 @@ Transform:
   m_Children:
   - {fileID: 2066433664}
   - {fileID: 255423519}
+  - {fileID: 176992979}
   m_Father: {fileID: 2164913574150679149}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 3.67}
 --- !u!114 &276305659
@@ -595,8 +595,8 @@ CircleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0.00000071525574}
-  m_Radius: 5.740001
+  m_Offset: {x: 5.0750523, y: 0.39145842}
+  m_Radius: 3.5015993
 --- !u!1 &308951529
 GameObject:
   m_ObjectHideFlags: 0
@@ -1731,6 +1731,7 @@ MonoBehaviour:
   _stopSprite: {fileID: 6068752714494607558, guid: 0ac36690c87606045a9eba3fac612a5c, type: 3}
   _playCameraSize: 3.5
   _cameraMove: {x: 0, y: -1.5}
+  _pendulum: {fileID: 1252807866}
   _rightLeftSprite: {fileID: 1184066844}
   _connectorArm1Sprite: {fileID: 255423520}
   _connectorArm2Sprite: {fileID: 1885858412}
@@ -2433,6 +2434,64 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0.2594014, w: 0.9657696}
   m_LocalPosition: {x: 1.85, y: -2.35, z: 0}
   m_LocalScale: {x: 1.7475916, y: 1.784167, z: 1.784167}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1252807865
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1252807867}
+  - component: {fileID: 1252807866}
+  m_Layer: 0
+  m_Name: DoublePendulum
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1252807866
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1252807865}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e477303599ea96341b2b098685eaabf8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DoublePendulumController
+  _point1: {fileID: 941658138}
+  _point2: {fileID: 255423519}
+  _point3: {fileID: 1885858411}
+  _arm1: {fileID: 276305659}
+  _arm2: {fileID: 176992981}
+  _hammerSelect: {fileID: 776509243}
+  _hookMass: 5
+  _woodMass: 1
+  _metalMass: 3
+  _gravityMultiplier: 2.01
+  _startSpeed1: 0
+  _startSpeed2: -90
+  _assistTorque: 5
+  _assistBelowSpeed: 360
+--- !u!4 &1252807867
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1252807865}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -1.55275, y: 0.73426, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -3520,6 +3579,7 @@ SceneRoots:
   - {fileID: 449665882}
   - {fileID: 374729007}
   - {fileID: 1519584931}
+  - {fileID: 1252807867}
   - {fileID: 308951531}
   - {fileID: 840556216}
   - {fileID: 787284660}

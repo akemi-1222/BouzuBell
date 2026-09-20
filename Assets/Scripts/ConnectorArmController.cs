@@ -232,4 +232,13 @@ public class ConnectorArmController : MonoBehaviour,
 
         return Vector3.Cross(right, up).magnitude / right.magnitude;
     }
+
+    // •¨—‰‰Z‚ÅŒˆ‚Ü‚Á‚½ˆÊ’u‚Öæ’[‚ğˆÚ“®‚·‚é
+    public void ApplyPhysicsPosition(Vector3 position)
+    {
+        transform.position += position - _connectPoint.position;
+
+        UpdateArm();
+        RotateVisual();
+    }
 }
