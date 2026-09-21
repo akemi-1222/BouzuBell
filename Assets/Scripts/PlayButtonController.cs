@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -10,6 +11,9 @@ public class PlayButtonController : MonoBehaviour,
 
     [Header("停止ボタンの画像")]
     [SerializeField] private Sprite _stopSprite;
+
+    [Header("年明けまでのタイマー")]
+    [SerializeField] private GameTimer _timer;
 
     [Header("プレイ中のカメラのSize")]
     [SerializeField, Min(0.1f)]
@@ -27,6 +31,7 @@ public class PlayButtonController : MonoBehaviour,
     [SerializeField] private SpriteRenderer _connectorArm1Sprite;
     [SerializeField] private SpriteRenderer _connectorArm2Sprite;
     [SerializeField] private Image _hammerSelectImage;
+    [SerializeField] private TMP_Text _textMeshPro;
 
     [Header("プレイ中に停止する操作")]
     [SerializeField] private CraneArmController _craneArm;
@@ -130,6 +135,9 @@ public class PlayButtonController : MonoBehaviour,
         float sizeRatio = _camera.orthographicSize / _initialCameraSize;
 
         transform.localScale = _initialButtonScale * sizeRatio;
+
+        if (_timer != null)
+            _timer.StartTimer();
     }
 
     private void StopPlay()
@@ -148,6 +156,9 @@ public class PlayButtonController : MonoBehaviour,
 
         //非表示にした画像と、停止した操作を戻す
         SetEditMode(true);
+
+        if (_timer != null)
+            _timer.ResetTimer();
     }
 
     private void SetEditMode(bool canEdit)
@@ -157,6 +168,7 @@ public class PlayButtonController : MonoBehaviour,
         _connectorArm1Sprite.enabled = canEdit;
         _connectorArm2Sprite.enabled = canEdit;
         _hammerSelectImage.enabled = canEdit;
+        _textMeshPro.enabled = canEdit;
 
         //押しっぱなしの状態を解除する
         _craneArm.EndButtonControl();
