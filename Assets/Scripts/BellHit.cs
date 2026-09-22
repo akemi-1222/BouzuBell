@@ -25,6 +25,10 @@ public class BellHit : MonoBehaviour
     [SerializeField] private GameObject _damageObject;
     [SerializeField] private Transform _damageTextPos;
 
+    [Header("鐘のSE")]
+    [SerializeField] private AudioSource _audioSource;
+    [SerializeField] private AudioClip _hitSE;
+
     [Header("残り煩悩のバー")]
     [SerializeField] private BonnouBar _bonnouBar;
 
@@ -59,6 +63,10 @@ public class BellHit : MonoBehaviour
             return false;
 
         _nextHitTime = Time.time + _hitInterval;
+
+        //鐘のSEを鳴らす
+        if (_audioSource != null && _hitSE != null)
+            _audioSource.PlayOneShot(_hitSE);
 
         //まず、ダメージ全体の大きさを決める
         float baseDamage = power * _damageScale;
