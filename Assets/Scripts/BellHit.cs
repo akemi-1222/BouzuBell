@@ -40,9 +40,7 @@ public class BellHit : MonoBehaviour
         _nextHitTime = 0f;
 
         if (_damageText != null)
-        {
             _damageText.text = "";
-        }
 
         UpdateText();
     }
@@ -60,17 +58,13 @@ public class BellHit : MonoBehaviour
 
         _nextHitTime = Time.time + _hitInterval;
 
-        // まず、ダメージ全体の大きさを決める
+        //まず、ダメージ全体の大きさを決める
         float baseDamage = power * _damageScale;
 
-        // 強い打撃と弱い打撃の差を調整する
-        float calculatedDamage =
-            Mathf.Pow(baseDamage, _damageExponent);
+        //強い打撃と弱い打撃の差を調整する
+        float calculatedDamage = Mathf.Pow(baseDamage, _damageExponent);
 
-        int damage = Mathf.Max(
-            1,
-            Mathf.CeilToInt(calculatedDamage)
-        );
+        int damage = Mathf.Max(1, Mathf.CeilToInt(calculatedDamage));
 
         _remaining = Mathf.Max(0, _remaining - damage);
 
@@ -81,24 +75,12 @@ public class BellHit : MonoBehaviour
 
         UpdateText();
 
-        if (_showHitLog)
-        {
-            Debug.Log(
-                $"命中：威力={power:F2} / " +
-                $"基本値={baseDamage:F2}/" +
-                $"ダメージ={damage}",
-                this
-            );
-        }
-
         return true;
     }
 
     private void UpdateText()
     {
         if (_remainingText != null)
-        {
             _remainingText.text = $"残り煩悩{_remaining}";
-        }
     }
 }

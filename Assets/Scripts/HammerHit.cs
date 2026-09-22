@@ -47,11 +47,6 @@ public class HammerHit : MonoBehaviour
 
         if (_bellBody == null || _hitCollider == null)
         {
-            Debug.LogError(
-                "鐘のRigidbodyとハンマーのSphereColliderを確認してください。",
-                this
-            );
-
             enabled = false;
             return;
         }
@@ -70,7 +65,7 @@ public class HammerHit : MonoBehaviour
             ApplyRotationBoost();
         }
 
-        // 次の物理計算で命中したときに使う
+        //次の物理計算で命中したときに使う
         SaveMotion();
     }
 
@@ -89,13 +84,13 @@ public class HammerHit : MonoBehaviour
         if (_bellBody.isKinematic)
             return;
 
-        // 指定した鐘だけを対象にする
+        //指定した鐘だけを対象にする
         BellHit hitBell = other.GetComponentInParent<BellHit>();
 
         if (hitBell != _bell)
             return;
 
-        // ハンマーを鐘から押し出す方向を調べる
+        //ハンマーを鐘から押し出す方向を調べる
         Vector3 escapeDirection;
         float overlapDistance;
 
@@ -113,7 +108,7 @@ public class HammerHit : MonoBehaviour
         if (!overlaps)
             return;
 
-        // 鐘を押す方向は、その反対
+        //鐘を押す方向は、その反対
         Vector3 hitDirection = -escapeDirection;
         hitDirection.z = 0f;
 
@@ -122,11 +117,11 @@ public class HammerHit : MonoBehaviour
 
         hitDirection.Normalize();
 
-        // 前の位置に近い、鐘の表面上の点を打撃位置にする
+        //前の位置に近い、鐘の表面上の点を打撃位置にする
         Vector3 hitPoint = other.ClosestPoint(_beforePosition);
         hitPoint.z = _bellBody.worldCenterOfMass.z;
 
-        // 回転も含めた、ハンマーの打撃位置での速度
+        //回転も含めた、ハンマーの打撃位置での速度
         Vector3 hammerVelocity =
             _beforeVelocity +
             Vector3.Cross(
@@ -140,7 +135,7 @@ public class HammerHit : MonoBehaviour
         Vector3 relativeVelocity = hammerVelocity - bellVelocity;
         relativeVelocity.z = 0f;
 
-        // 鐘へ近づいている成分だけを使う
+        //鐘へ近づいている成分だけを使う
         float hitSpeed = Vector3.Dot(
             relativeVelocity,
             hitDirection
@@ -149,15 +144,14 @@ public class HammerHit : MonoBehaviour
         if (hitSpeed <= 0f)
             return;
 
-        // ダメージ用の威力
-        float power =
-            0.5f * _body.mass * hitSpeed * hitSpeed;
+        //ダメージ用の威力
+        float power = 0.5f * _body.mass * hitSpeed * hitSpeed;
 
-        // 弱すぎる命中や連続命中は受け付けない
+        //弱すぎる命中や連続命中は受け付けない
         if (!_bell.ReceiveHit(power))
             return;
 
-        // 鐘を押す。中心から外れれば傾きも生まれる
+        //鐘を押す。中心から外れれば傾きも生まれる
         float impulse = Mathf.Min(
             _body.mass * hitSpeed * BellPushScale,
             MaxBellImpulse
@@ -174,7 +168,7 @@ public class HammerHit : MonoBehaviour
 
     private void PrepareRotationBoost()
     {
-        // ダメージとは別に、加速の連発を防ぐ
+        //ダメージとは別に、加速の連発を防ぐ
         if (Time.time < _nextBoostTime)
             return;
 
@@ -183,11 +177,11 @@ public class HammerHit : MonoBehaviour
 
         float limit = BoostSpeedLimit * Mathf.Deg2Rad;
 
-        // ほぼ停止している場合と、十分速い場合は補助しない
+        //ほぼ停止している場合と、十分速い場合は補助しない
         if (speed < 0.05f || speed >= limit)
             return;
 
-        // 上限に近いほど、追加する勢いを小さくする
+        //上限に近いほど、追加する勢いを小さくする
         float strength = 1f - speed / limit;
         float extra = ExtraRotationSpeed * Mathf.Deg2Rad * strength;
 
@@ -202,15 +196,13 @@ public class HammerHit : MonoBehaviour
         float currentSpeed = _body.angularVelocity.z;
         float direction = Mathf.Sign(_targetSpeed);
 
-        // すでに同じ方向へ十分速く回っている場合は維持
+        //すでに同じ方向へ十分速く回っている場合は維持
         if (currentSpeed * direction >= Mathf.Abs(_targetSpeed))
             return;
 
-        // 親の回転を差し引き、関節の相対速度に変換する
-        float relativeSpeed =
-            _targetSpeed - _parentBody.angularVelocity.z;
+        //親の回転を差し引き、関節の相対速度に変換する
+        float relativeSpeed = _targetSpeed - _parentBody.angularVelocity.z;
 
-        _body.jointVelocity =
-            new ArticulationReducedSpace(relativeSpeed);
+        _body.jointVelocity = new ArticulationReducedSpace(relativeSpeed);
     }
 }

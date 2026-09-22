@@ -39,26 +39,26 @@ public class DoublePendulumController : MonoBehaviour
     [SerializeField, Min(0.01f)]
     private float _hammerHitRadius = 0.2f;
 
-    // 画像とは別に作る、物理計算用のオブジェクト
+    //画像とは別に作る、物理計算用のオブジェクト
     private GameObject _physicsRoot;
     private ArticulationBody _firstBody;
     private ArticulationBody _secondBody;
 
-    // プレイ開始時の位置と長さ
+    //プレイ開始時の位置と長さ
     private Vector3 _fixedPoint1;
     private Vector3 _initialPoint2;
     private Vector3 _initialPoint3;
     private float _length1;
     private float _length2;
 
-    // 0なら、まだ回転方向が決まっていない
+    //0なら、まだ回転方向が決まっていない
     private float _lastDirection1;
     private float _lastDirection2;
 
     private bool _isSimulating;
     private bool _hasPhysicsError;
 
-    // プレイボタンから呼ぶ
+    //プレイボタンから呼ぶ
     public bool BeginSimulation()
     {
         if (_isSimulating)
@@ -67,7 +67,7 @@ public class DoublePendulumController : MonoBehaviour
         if (!CheckSettings())
             return false;
 
-        // 停止時に戻すため、現在の配置を保存
+        //停止時に戻すため、現在の配置を保存
         _fixedPoint1 = _point1.position;
         _initialPoint2 = _point2.position;
         _initialPoint3 = _point3.position;
@@ -75,13 +75,13 @@ public class DoublePendulumController : MonoBehaviour
         _length1 = Vector3.Distance(_fixedPoint1, _initialPoint2);
         _length2 = Vector3.Distance(_initialPoint2, _initialPoint3);
 
-        // 開始方向は重力に任せる
+        //開始方向は重力に任せる
         _lastDirection1 = 0f;
         _lastDirection2 = 0f;
 
         _hasPhysicsError = false;
 
-        // 画像の拡大率に影響されない物理用の根元
+        //画像の拡大率に影響されない物理用の根元
         _physicsRoot = new GameObject("PendulumPhysicsRoot");
         _physicsRoot.transform.position = _fixedPoint1;
 
@@ -91,23 +91,15 @@ public class DoublePendulumController : MonoBehaviour
         rootBody.immovable = true;
         rootBody.useGravity = false;
 
-        // 1本目：根元からHook
-        _firstBody = CreateBody(
-            "HookPhysics",
-            rootBody,
-            _initialPoint2,
-            _fixedPoint1,
-            _hookMass
-        );
+        //1本目：根元からHook
+        _firstBody = CreateBody( "HookPhysics", rootBody, _initialPoint2, _fixedPoint1, _hookMass);
 
         float hammerMass = _metalMass;
 
         if (_hammerSelect.IsWood)
-        {
             hammerMass = _woodMass;
-        }
 
-        // 2本目：HookからHammer
+        //2本目：HookからHammer
         _secondBody = CreateBody(
             "HammerPhysics",
             _firstBody,
@@ -116,7 +108,7 @@ public class DoublePendulumController : MonoBehaviour
             hammerMass
         );
 
-        // 新しく作った物体なので、初速は与えない
+        //新しく作った物体なので、初速は与えない
         SetupHammerHit();
 
         _bell.ResetBell();
@@ -126,70 +118,41 @@ public class DoublePendulumController : MonoBehaviour
         return true;
     }
 
-    // 開始に必要な設定を確認する
+    //開始に必要な設定を確認する
     private bool CheckSettings()
     {
         if (_point1 == null || _point2 == null || _point3 == null ||
             _arm1 == null || _arm2 == null ||
             _bell == null || _bellMotion == null ||
             _hammerSelect == null)
-        {
-            Debug.LogError(
-                "DoublePendulumControllerの参照をすべて設定してください。",
-                this
-            );
-
             return false;
-        }
 
         if (_bell.GetComponent<Rigidbody>() == null)
-        {
-            Debug.LogError("BellにRigidbodyを追加してください。", this);
             return false;
-        }
 
         if (_bellMotion.gameObject != _bell.gameObject)
-        {
-            Debug.LogError(
-                "BellとBell Motionには、同じ鐘を登録してください。",
-                this
-            );
-
             return false;
-        }
 
         Vector3 point1 = _point1.position;
         Vector3 point2 = _point2.position;
         Vector3 point3 = _point3.position;
 
         if (!IsFinite(point1) || !IsFinite(point2) || !IsFinite(point3))
-        {
-            Debug.LogError("接続位置に異常な数値があります。", this);
             return false;
-        }
 
         if (Mathf.Abs(point1.z - point2.z) > 0.001f ||
             Mathf.Abs(point1.z - point3.z) > 0.001f)
-        {
-            Debug.LogError(
-                "3つの接続位置のワールドZ座標をそろえてください。",
-                this
-            );
-
             return false;
-        }
+        
 
         if (Vector3.Distance(point1, point2) < 0.05f ||
             Vector3.Distance(point2, point3) < 0.05f)
-        {
-            Debug.LogError("2本とも、長さを付けて配置してください。", this);
             return false;
-        }
 
         return true;
     }
 
-    // 回転する関節と重りを作る
+    //回転する関節と重りを作る
     private ArticulationBody CreateBody(
         string objectName,
         ArticulationBody parentBody,
@@ -203,20 +166,17 @@ public class DoublePendulumController : MonoBehaviour
         bodyObject.transform.position = position;
         bodyObject.transform.rotation = Quaternion.identity;
 
-        ArticulationBody body =
-            bodyObject.AddComponent<ArticulationBody>();
+        ArticulationBody body = bodyObject.AddComponent<ArticulationBody>();
 
         body.jointType = ArticulationJointType.RevoluteJoint;
         body.matchAnchors = false;
 
-        // 親と子の接続位置を合わせる
-        body.anchorPosition =
-            bodyObject.transform.InverseTransformPoint(jointPosition);
+        //親と子の接続位置を合わせる
+        body.anchorPosition = bodyObject.transform.InverseTransformPoint(jointPosition);
 
-        body.parentAnchorPosition =
-            parentBody.transform.InverseTransformPoint(jointPosition);
+        body.parentAnchorPosition = parentBody.transform.InverseTransformPoint(jointPosition);
 
-        // 関節の回転軸をワールドZ方向に向ける
+        //関節の回転軸をワールドZ方向に向ける
         Quaternion rotation = Quaternion.Euler(0f, -90f, 0f);
 
         body.anchorRotation = rotation;
@@ -226,28 +186,28 @@ public class DoublePendulumController : MonoBehaviour
         mass = Mathf.Max(0.01f, mass);
         body.mass = mass;
 
-        // 重力はFixedUpdateで加える
+        //重力はFixedUpdateで加える
         body.useGravity = false;
 
         body.linearDamping = 0f;
         body.angularDamping = 0.05f;
         body.jointFriction = 0f;
 
-        // 関節のバネとモーターは使わない
+        //関節のバネとモーターは使わない
         ArticulationDrive drive = body.xDrive;
         drive.stiffness = 0f;
         drive.damping = 0f;
         drive.forceLimit = 0f;
         body.xDrive = drive;
 
-        // Colliderを追加しても、重心と慣性を変えない
+        //Colliderを追加しても、重心と慣性を変えない
         body.automaticCenterOfMass = false;
         body.automaticInertiaTensor = false;
 
         body.centerOfMass = Vector3.zero;
         body.inertiaTensorRotation = Quaternion.identity;
 
-        // これまでと同じ、小さな球の重りとして計算
+        //これまでと同じ、小さな球の重りとして計算
         const float radius = 0.1f;
         float inertia = 0.4f * mass * radius * radius;
 
@@ -262,14 +222,12 @@ public class DoublePendulumController : MonoBehaviour
 
     private void SetupHammerHit()
     {
-        SphereCollider hitCollider =
-            _secondBody.gameObject.AddComponent<SphereCollider>();
+        SphereCollider hitCollider = _secondBody.gameObject.AddComponent<SphereCollider>();
 
         hitCollider.radius = Mathf.Max(0.01f, _hammerHitRadius);
         hitCollider.isTrigger = true;
 
-        HammerHit hammerHit =
-            _secondBody.gameObject.AddComponent<HammerHit>();
+        HammerHit hammerHit = _secondBody.gameObject.AddComponent<HammerHit>();
 
         hammerHit.Initialize(_secondBody, _firstBody, _bell);
     }
@@ -279,34 +237,23 @@ public class DoublePendulumController : MonoBehaviour
         if (!_isSimulating || _hasPhysicsError)
             return;
 
-        Vector3 gravity =
-            Physics.gravity * Mathf.Clamp(_gravityMultiplier, 1f, 3f);
+        Vector3 gravity = Physics.gravity * Mathf.Clamp(_gravityMultiplier, 1f, 3f);
 
         //第１アーム：弱めに補助する
-        _lastDirection1 = ApplyForces(
-            _firstBody,
-            gravity,
-            _lastDirection1,
-            0.2f
-        );
+        _lastDirection1 = ApplyForces( _firstBody, gravity, _lastDirection1, 0.2f);
 
         //第２アーム：これまでの強さで補助する
-        _lastDirection2 = ApplyForces(
-            _secondBody,
-            gravity,
-            _lastDirection2,
-            1f
-        );
+        _lastDirection2 = ApplyForces( _secondBody,  gravity, _lastDirection2, 1f);
     }
 
-    // 力を加え、覚えておく回転方向を返す
+    //力を加え、覚えておく回転方向を返す
     private float ApplyForces(
     ArticulationBody body,
     Vector3 gravity,
     float direction,
     float assistRate)
     {
-        // 重力を加える
+        //重力を加える
         body.AddForce(gravity * body.mass, ForceMode.Force);
 
         if (_assistTorque <= 0f)
@@ -315,27 +262,22 @@ public class DoublePendulumController : MonoBehaviour
         float speed = body.angularVelocity.z;
         float absoluteSpeed = Mathf.Abs(speed);
 
-        float speedLimit =
-            Mathf.Max(1f, _assistBelowSpeed) * Mathf.Deg2Rad;
+        float speedLimit = Mathf.Max(1f, _assistBelowSpeed) * Mathf.Deg2Rad;
 
-        // 十分速いときは、補助しない
+        //十分速いときは、補助しない
         if (absoluteSpeed >= speedLimit)
             return direction;
 
-        // 停止付近では補助を弱める。
-        // 回転方向が変わっても、力が急に反転しないようにする。
+        //停止付近では補助を弱める。
+        //回転方向が変わっても、力が急に反転しないようにする。
         const float smoothSpeed = 0.5f;
 
-        float smoothDirection =
-            speed / Mathf.Sqrt(
-                speed * speed + smoothSpeed * smoothSpeed
-            );
+        float smoothDirection = speed / Mathf.Sqrt( speed * speed + smoothSpeed * smoothSpeed);
 
-        // 速くなるほど補助を弱める
+        //速くなるほど補助を弱める
         float strength = 1f - absoluteSpeed / speedLimit;
 
-        float torque =
-    smoothDirection * _assistTorque * strength * assistRate;
+        float torque = smoothDirection * _assistTorque * strength * assistRate;
 
         body.AddTorque(
             Vector3.forward * torque,
@@ -345,7 +287,7 @@ public class DoublePendulumController : MonoBehaviour
         return smoothDirection;
     }
 
-    // 物理計算の結果に画像を合わせる
+    //物理計算の結果に画像を合わせる
     private void LateUpdate()
     {
         if (!_isSimulating || _hasPhysicsError)
@@ -367,16 +309,10 @@ public class DoublePendulumController : MonoBehaviour
             _hasPhysicsError = true;
             _physicsRoot.SetActive(false);
 
-            Debug.LogError(
-                "振り子の接続に異常があるため停止しました。" +
-                "停止ボタンで編集状態へ戻してください。",
-                this
-            );
-
             return;
         }
 
-        // 根元に近い方から順番に動かす
+        //根元に近い方から順番に動かす
         _arm1.ApplyPhysicsPosition(point2);
         _arm2.ApplyPhysicsPosition(point3);
     }
@@ -392,7 +328,7 @@ public class DoublePendulumController : MonoBehaviour
             !float.IsInfinity(position.z);
     }
 
-    // 停止ボタンから呼ぶ
+    //停止ボタンから呼ぶ
     public void EndSimulation()
     {
         if (!_isSimulating)

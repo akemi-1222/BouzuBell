@@ -14,16 +14,10 @@ public class GameTimer : MonoBehaviour
     private void Awake()
     {
         if (_timerText == null)
-        {
             _timerText = GetComponent<TMP_Text>();
-        }
 
         if (_timerText == null)
-        {
-            Debug.LogError("タイマー用のTextを設定してください。", this);
-            enabled = false;
             return;
-        }
 
         ResetTimer();
     }
@@ -44,7 +38,7 @@ public class GameTimer : MonoBehaviour
         UpdateText();
     }
 
-    // プレイ開始：表示してカウントする
+    //プレイ開始：表示してカウントする
     public void StartTimer()
     {
         if (_timerText == null)
@@ -57,7 +51,7 @@ public class GameTimer : MonoBehaviour
         UpdateText();
     }
 
-    // 停止：30秒に戻して非表示にする
+    //停止：30秒に戻して非表示にする
     public void ResetTimer()
     {
         _isRunning = false;

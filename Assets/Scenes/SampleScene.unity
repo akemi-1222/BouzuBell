@@ -2444,8 +2444,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BellHit
   _remainingText: {fileID: 1350872558}
   _damageText: {fileID: 225458453}
-  _damageScale: 0.01
-  _damageExponent: 1.246
+  _damageScale: 0.015
+  _damageExponent: 1.25
   _minimumImpact: 0.1
   _hitInterval: 0.15
   _showHitLog: 1
