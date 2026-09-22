@@ -39,6 +39,9 @@ public class PlayButtonController : MonoBehaviour,
     [SerializeField] private ConnectorArmController _connector2;
     [SerializeField] private HammerSelectButtom _hammerSelect;
 
+    [Header("ÉnÉìÉ}Å[ÇÃãOê’")]
+    [SerializeField] private TrailRenderer _hammerTrail;
+
     private Camera _camera;
     private SpriteRenderer _spriteRenderer;
 
@@ -118,6 +121,12 @@ public class PlayButtonController : MonoBehaviour,
             return;
         }
 
+        if (_hammerTrail != null)
+        {
+            _hammerTrail.Clear();
+            _hammerTrail.emitting = true;
+        }
+
         SetEditMode(false);
 
         _spriteRenderer.sprite = _stopSprite;
@@ -138,10 +147,18 @@ public class PlayButtonController : MonoBehaviour,
 
         if (_timer != null)
             _timer.StartTimer();
+
+        
     }
 
     private void StopPlay()
     {
+        if (_hammerTrail != null)
+        {
+            _hammerTrail.emitting = false;
+            _hammerTrail.Clear();
+        }
+
         _pendulum.EndSimulation();
 
         _spriteRenderer.sprite = _playSprite;
