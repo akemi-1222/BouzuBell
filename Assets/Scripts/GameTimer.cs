@@ -9,6 +9,9 @@ public class GameTimer : MonoBehaviour
     [Header("åãâ âÊñ ÇÃä«óù")]
     [SerializeField] private ResultController _resultController;
 
+    [Header("Ç≤óòâvÉ^ÉCÉÄÇÃBGM")]
+    [SerializeField] private AudioSource _benefitBGM;
+
     private const float LimitTime = 30f;
 
     private float _endTime;
@@ -41,10 +44,16 @@ public class GameTimer : MonoBehaviour
         _timerText.enabled = false;
 
         _resultController.FinishGame();
+
+        if (_benefitBGM != null)
+            _benefitBGM.Stop();
     }
 
     public void StartTimer()
     {
+        if (_benefitBGM != null)
+            _benefitBGM.Stop();
+
         _resultController.ResetResult();
 
         _endTime = Time.time + LimitTime;
@@ -64,6 +73,9 @@ public class GameTimer : MonoBehaviour
         _isBenefitTime = true;
         _endTime += 10f;
 
+        if (_benefitBGM != null)
+            _benefitBGM.Play();
+
         _resultController.ShowBenefitBackground();
         UpdateText();
 
@@ -72,6 +84,9 @@ public class GameTimer : MonoBehaviour
 
     public void ResetTimer()
     {
+        if (_benefitBGM != null)
+            _benefitBGM.Stop();
+
         _isRunning = false;
         _isBenefitTime = false;
 
