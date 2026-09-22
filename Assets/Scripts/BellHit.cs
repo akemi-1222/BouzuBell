@@ -35,6 +35,17 @@ public class BellHit : MonoBehaviour
     private int _remaining = 108;
     private float _nextHitTime;
 
+    //結果画面から残り煩悩を読めるようにする
+    public int Remaining => _remaining;
+
+    //時間切れ後はダメージを受け付けない
+    private bool _canReceiveHit = true;
+
+    public void StopReceivingHits()
+    {
+        _canReceiveHit = false;
+    }
+
     private void Awake()
     {
         ResetBell();
@@ -42,6 +53,8 @@ public class BellHit : MonoBehaviour
 
     public void ResetBell()
     {
+        _canReceiveHit = true;
+
         _remaining = 108;
         _nextHitTime = 0f;
 
@@ -53,6 +66,9 @@ public class BellHit : MonoBehaviour
 
     public bool ReceiveHit(float power)
     {
+        if (!_canReceiveHit)
+            return false;
+
         if (_remaining <= 0)
             return false;
 

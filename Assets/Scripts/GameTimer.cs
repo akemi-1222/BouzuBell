@@ -3,8 +3,11 @@ using UnityEngine;
 
 public class GameTimer : MonoBehaviour
 {
-    [Header("残り時間を表示するText")]
+    [Header("残り時間のText")]
     [SerializeField] private TMP_Text _timerText;
+
+    [Header("結果画面の管理")]
+    [SerializeField] private ResultController _resultController;
 
     private const float LimitTime = 30f;
 
@@ -16,10 +19,8 @@ public class GameTimer : MonoBehaviour
         if (_timerText == null)
             _timerText = GetComponent<TMP_Text>();
 
-        if (_timerText == null)
-            return;
-
-        ResetTimer();
+        UpdateText();
+        _timerText.enabled = false;
     }
 
     private void Update()
@@ -27,22 +28,26 @@ public class GameTimer : MonoBehaviour
         if (!_isRunning)
             return;
 
-        _remainingTime -= Time.deltaTime;
-
-        if (_remainingTime <= 0f)
-        {
-            _remainingTime = 0f;
-            _isRunning = false;
-        }
+        _remainingTime = Mathf.Max(
+            0f,
+            _remainingTime - Time.deltaTime
+        );
 
         UpdateText();
+
+        if (_remainingTime > 0f)
+            return;
+
+        // 時間切れの処理は一度だけ行う
+        _isRunning = false;
+        _timerText.enabled = false;
+
+        _resultController.FinishGame();
     }
 
-    //プレイ開始：表示してカウントする
     public void StartTimer()
     {
-        if (_timerText == null)
-            return;
+        _resultController.ResetResult();
 
         _remainingTime = LimitTime;
         _isRunning = true;
@@ -51,22 +56,21 @@ public class GameTimer : MonoBehaviour
         UpdateText();
     }
 
-    //停止：30秒に戻して非表示にする
     public void ResetTimer()
     {
         _isRunning = false;
         _remainingTime = LimitTime;
 
-        if (_timerText == null)
-            return;
-
         UpdateText();
         _timerText.enabled = false;
+
+        _resultController.ResetResult();
     }
 
     private void UpdateText()
     {
         int seconds = Mathf.CeilToInt(_remainingTime);
+
         _timerText.text = $"年明けまで残り{seconds}秒";
     }
 }

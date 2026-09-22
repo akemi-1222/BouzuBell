@@ -1,4 +1,6 @@
 using UnityEngine;
+using TMPro;
+using UnityEngine.Events;
 
 [DefaultExecutionOrder(-100)]
 public class DoublePendulumController : MonoBehaviour
@@ -47,6 +49,21 @@ public class DoublePendulumController : MonoBehaviour
     [Header("連続回転中のブレーキ：0なら補助停止だけ")]
     [SerializeField, Min(0f)]
     private float _spinBrake = 0f;
+
+    [Header("アームが折れそうなときの表示")]
+    [SerializeField] private TMP_Text _breakWarningText;
+
+    [Header("何周したら折れるか")]
+    [SerializeField, Min(3)]
+    private int _breakTurns = 5;
+
+    [Header("折れたときに実行する処理")]
+    [SerializeField] private UnityEvent _onArmBroken;
+
+    [Header("折れたときに表示する画像")]
+    [SerializeField] private SpriteRenderer _oretaImage;
+
+    private bool _isBroken;
 
     //第１アームの回転を記録する
     private float _previousArmAngle;
@@ -273,6 +290,8 @@ public class DoublePendulumController : MonoBehaviour
 
         UpdateSpinGuard();
 
+        CheckArmBreak();
+
         Vector3 gravity =
             Physics.gravity * Mathf.Clamp(_gravityMultiplier, 1f, 3f);
 
@@ -381,6 +400,17 @@ public class DoublePendulumController : MonoBehaviour
         _limitingSpin = false;
         _assistBlend = 1f;
         _brakeBlend = 0f;
+
+        _isBroken = false;
+
+        if (_breakWarningText != null)
+        {
+            _breakWarningText.text = "";
+            _breakWarningText.enabled = false;
+        }
+
+        if (_oretaImage != null)
+            _oretaImage.enabled = false;
     }
 
     private void UpdateSpinGuard()
@@ -467,6 +497,44 @@ public class DoublePendulumController : MonoBehaviour
             Vector3.forward * torque,
             ForceMode.Force
         );
+    }
+
+    // 同じ方向への連続回転を確認する
+    private void CheckArmBreak()
+    {
+        if (_isBroken)
+            return;
+
+        int completedTurns =
+            Mathf.FloorToInt(_turnAngle / 360f);
+
+        int remainingTurns =
+            _breakTurns - completedTurns;
+
+        if (remainingTurns <= 0)
+        {
+            _isBroken = true;
+
+            // 警告文字を消す
+            if (_breakWarningText != null)
+                _breakWarningText.enabled = false;
+
+            // 折れた画像を表示
+            if (_oretaImage != null)
+                _oretaImage.enabled = true;
+
+            // 登録されている折れる処理を実行
+            _onArmBroken.Invoke();
+            return;
+        }
+
+        if (_breakWarningText == null)
+            return;
+
+        _breakWarningText.enabled = remainingTurns <= 2;
+
+        if (remainingTurns <= 2)
+            _breakWarningText.text = $"折れそう {remainingTurns}";
     }
 
     private bool IsFinite(Vector3 position)
