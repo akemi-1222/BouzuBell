@@ -2962,8 +2962,10 @@ MonoBehaviour:
   _metalMass: 3
   _gravityMultiplier: 2.21
   _assistTorque: 5
-  _assistBelowSpeed: 360
-  _hammerHitRadius: 0.2
+  _assistBelowSpeed: 1
+  _hammerHitRadius: 0.5
+  _spinLimitAngle: 720
+  _spinBrake: 0.01
 --- !u!4 &1252807867
 Transform:
   m_ObjectHideFlags: 0

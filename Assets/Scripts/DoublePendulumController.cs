@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[DefaultExecutionOrder(-100)]
 public class DoublePendulumController : MonoBehaviour
 {
     [Header("接続位置：根元 → Hook → Hammer")]
@@ -39,6 +40,34 @@ public class DoublePendulumController : MonoBehaviour
     [SerializeField, Min(0.01f)]
     private float _hammerHitRadius = 0.2f;
 
+    [Header("連続回転の対策")]
+    [SerializeField, Min(360f)]
+    private float _spinLimitAngle = 720f;
+
+    [Header("連続回転中のブレーキ：0なら補助停止だけ")]
+    [SerializeField, Min(0f)]
+    private float _spinBrake = 0f;
+
+    //第１アームの回転を記録する
+    private float _previousArmAngle;
+    private float _turnDirection;
+    private float _turnAngle;
+
+    //小さな揺れを反転と間違えないための記録
+    private float _reverseAngle;
+    private float _reverseTime;
+
+    private bool _limitingSpin;
+    private float _assistBlend = 1f;
+    private float _brakeBlend;
+
+    //HammerHitから、加速してよいか確認する
+    public bool CanBoost =>
+        _isSimulating &&
+        !_hasPhysicsError &&
+        !_limitingSpin &&
+        _assistBlend >= 0.99f;
+
     //画像とは別に作る、物理計算用のオブジェクト
     private GameObject _physicsRoot;
     private ArticulationBody _firstBody;
@@ -75,6 +104,8 @@ public class DoublePendulumController : MonoBehaviour
         _length1 = Vector3.Distance(_fixedPoint1, _initialPoint2);
         _length2 = Vector3.Distance(_initialPoint2, _initialPoint3);
 
+        ResetSpinGuard();
+
         //開始方向は重力に任せる
         _lastDirection1 = 0f;
         _lastDirection2 = 0f;
@@ -93,6 +124,9 @@ public class DoublePendulumController : MonoBehaviour
 
         //1本目：根元からHook
         _firstBody = CreateBody( "HookPhysics", rootBody, _initialPoint2, _fixedPoint1, _hookMass);
+
+        // 第１アームだけ、回転の勢いを少し落とす
+        _firstBody.angularDamping = 0.1f;
 
         float hammerMass = _metalMass;
 
@@ -229,7 +263,7 @@ public class DoublePendulumController : MonoBehaviour
 
         HammerHit hammerHit = _secondBody.gameObject.AddComponent<HammerHit>();
 
-        hammerHit.Initialize(_secondBody, _firstBody, _bell);
+        hammerHit.Initialize(_secondBody, _firstBody, _bell, this);
     }
 
     private void FixedUpdate()
@@ -237,13 +271,27 @@ public class DoublePendulumController : MonoBehaviour
         if (!_isSimulating || _hasPhysicsError)
             return;
 
-        Vector3 gravity = Physics.gravity * Mathf.Clamp(_gravityMultiplier, 1f, 3f);
+        UpdateSpinGuard();
 
-        //第１アーム：弱めに補助する
-        _lastDirection1 = ApplyForces( _firstBody, gravity, _lastDirection1, 0.2f);
+        Vector3 gravity =
+            Physics.gravity * Mathf.Clamp(_gravityMultiplier, 1f, 3f);
 
-        //第２アーム：これまでの強さで補助する
-        _lastDirection2 = ApplyForces( _secondBody,  gravity, _lastDirection2, 1f);
+        _lastDirection1 = ApplyForces(
+            _firstBody,
+            gravity,
+            _lastDirection1,
+            0f
+            );
+
+        _lastDirection2 = ApplyForces(
+            _secondBody,
+            gravity,
+            _lastDirection2,
+            1f * _assistBlend
+        );
+
+        ApplySpinBrake(_firstBody);
+        ApplySpinBrake(_secondBody);
     }
 
     //力を加え、覚えておく回転方向を返す
@@ -317,6 +365,110 @@ public class DoublePendulumController : MonoBehaviour
         _arm2.ApplyPhysicsPosition(point3);
     }
 
+    // 開始・停止時に記録をリセットする
+    private void ResetSpinGuard()
+    {
+        Vector3 arm = _initialPoint2 - _fixedPoint1;
+
+        _previousArmAngle =
+            Mathf.Atan2(arm.y, arm.x) * Mathf.Rad2Deg;
+
+        _turnDirection = 0f;
+        _turnAngle = 0f;
+        _reverseAngle = 0f;
+        _reverseTime = 0f;
+
+        _limitingSpin = false;
+        _assistBlend = 1f;
+        _brakeBlend = 0f;
+    }
+
+    private void UpdateSpinGuard()
+    {
+        Vector3 arm =
+            _firstBody.transform.position - _fixedPoint1;
+
+        float angle =
+            Mathf.Atan2(arm.y, arm.x) * Mathf.Rad2Deg;
+
+        // 359度から0度へ進んだ場合も、正しく差を求める
+        float change = Mathf.DeltaAngle(_previousArmAngle, angle);
+        _previousArmAngle = angle;
+
+        float speed = change / Time.fixedDeltaTime;
+
+        // 最初に動き始めた方向を記録する
+        if (_turnDirection == 0f && Mathf.Abs(speed) >= 5f)
+            _turnDirection = Mathf.Sign(speed);
+
+        if (_turnDirection != 0f)
+        {
+            float forwardChange = change * _turnDirection;
+
+            // 少し逆に戻った分は差し引く
+            _turnAngle = Mathf.Max(0f, _turnAngle + forwardChange);
+
+            // 逆方向へ、ある程度はっきり動いているか
+            if (speed * _turnDirection < -5f)
+            {
+                _reverseAngle += Mathf.Abs(change);
+                _reverseTime += Time.fixedDeltaTime;
+
+                // 逆方向へ5度以上、0.2秒以上動いたら反転と判断
+                if (_reverseAngle >= 5f && _reverseTime >= 0.2f)
+                {
+                    _turnDirection = Mathf.Sign(speed);
+                    _turnAngle = _reverseAngle;
+
+                    _reverseAngle = 0f;
+                    _reverseTime = 0f;
+                    _limitingSpin = false;
+                }
+            }
+            else
+            {
+                _reverseAngle = 0f;
+                _reverseTime = 0f;
+            }
+
+            if (_turnAngle >= _spinLimitAngle)
+                _limitingSpin = true;
+        }
+
+        // 連続回転中は加速を止める。
+        // 解除後は約0.5秒かけて普段の補助へ戻す。
+        if (_limitingSpin)
+        {
+            _assistBlend = 0f;
+        }
+        else
+        {
+            _assistBlend = Mathf.MoveTowards(
+                _assistBlend, 1f, Time.fixedDeltaTime * 2f);
+        }
+
+        // ブレーキは急に切り替えず、徐々に効かせる
+        _brakeBlend = Mathf.MoveTowards(
+            _brakeBlend,
+            _limitingSpin ? 1f : 0f,
+            Time.fixedDeltaTime * 2f
+        );
+    }
+
+    private void ApplySpinBrake(ArticulationBody body)
+    {
+        if (_spinBrake <= 0f || _brakeBlend <= 0f)
+            return;
+
+        float torque =
+            -body.angularVelocity.z * _spinBrake * _brakeBlend;
+
+        body.AddTorque(
+            Vector3.forward * torque,
+            ForceMode.Force
+        );
+    }
+
     private bool IsFinite(Vector3 position)
     {
         return
@@ -336,6 +488,8 @@ public class DoublePendulumController : MonoBehaviour
 
         _isSimulating = false;
         _hasPhysicsError = false;
+
+        ResetSpinGuard();
 
         RemovePhysicsObjects();
         _bellMotion.ResetMotion();

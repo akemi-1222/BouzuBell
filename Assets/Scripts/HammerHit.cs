@@ -33,10 +33,13 @@ public class HammerHit : MonoBehaviour
     private float _targetSpeed;
     private bool _boostPending;
 
+    private DoublePendulumController _pendulum;
+
     public void Initialize(
         ArticulationBody body,
         ArticulationBody parentBody,
-        BellHit bell)
+        BellHit bell,
+        DoublePendulumController pendulum)
     {
         _body = body;
         _parentBody = parentBody;
@@ -44,6 +47,7 @@ public class HammerHit : MonoBehaviour
 
         _bellBody = bell.GetComponent<Rigidbody>();
         _hitCollider = body.GetComponent<SphereCollider>();
+        _pendulum = pendulum;
 
         if (_bellBody == null || _hitCollider == null)
         {
@@ -168,6 +172,12 @@ public class HammerHit : MonoBehaviour
 
     private void PrepareRotationBoost()
     {
+        if (_pendulum == null || !_pendulum.CanBoost)
+        {
+            _boostPending = false;
+            return;
+        }
+
         //ダメージとは別に、加速の連発を防ぐ
         if (Time.time < _nextBoostTime)
             return;
@@ -193,6 +203,12 @@ public class HammerHit : MonoBehaviour
 
     private void ApplyRotationBoost()
     {
+        if (_pendulum == null || !_pendulum.CanBoost)
+        {
+            _boostPending = false;
+            return;
+        }
+
         float currentSpeed = _body.angularVelocity.z;
         float direction = Mathf.Sign(_targetSpeed);
 
