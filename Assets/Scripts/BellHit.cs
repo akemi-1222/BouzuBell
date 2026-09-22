@@ -5,7 +5,6 @@ public class BellHit : MonoBehaviour
 {
     [Header("表示するText")]
     [SerializeField] private TMP_Text _remainingText;
-    [SerializeField] private TMP_Text _damageText;
 
     [Header("ダメージ全体の倍率")]
     [SerializeField, Min(0f)]
@@ -23,8 +22,8 @@ public class BellHit : MonoBehaviour
     [SerializeField, Min(0f)]
     private float _hitInterval = 0.15f;
 
-    [Header("調整用のログを表示する")]
-    [SerializeField] private bool _showHitLog = true;
+    [SerializeField] private GameObject _damageObject;
+    [SerializeField] private Transform _damageTextPos;
 
     private int _remaining = 108;
     private float _nextHitTime;
@@ -38,9 +37,6 @@ public class BellHit : MonoBehaviour
     {
         _remaining = 108;
         _nextHitTime = 0f;
-
-        if (_damageText != null)
-            _damageText.text = "";
 
         UpdateText();
     }
@@ -68,12 +64,22 @@ public class BellHit : MonoBehaviour
 
         _remaining = Mathf.Max(0, _remaining - damage);
 
-        if (_damageText != null)
-        {
-            _damageText.text = $"{damage}煩悩";
-        }
-
         UpdateText();
+
+        if (_damageObject != null && _damageTextPos != null)
+        {
+            //Canvas内の表示位置を親にして生成する
+            GameObject obj = Instantiate(_damageObject, _damageTextPos);
+
+            RectTransform rect = obj.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0.5f, 0.5f);
+            rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition3D = Vector3.zero;
+            rect.localRotation = Quaternion.identity;
+            rect.localScale = Vector3.one;
+
+            obj.GetComponent<DamageText>().Show(damage);
+        }
 
         return true;
     }

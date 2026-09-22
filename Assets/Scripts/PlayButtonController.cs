@@ -42,6 +42,12 @@ public class PlayButtonController : MonoBehaviour,
     [Header("ハンマーの軌跡")]
     [SerializeField] private TrailRenderer _hammerTrail;
 
+    [Header("プレイ中に表示にする画像")]
+    [SerializeField] private TMP_Text _restBonnou;
+
+    [Header("ダメージ表示の親")]
+    [SerializeField] private GameObject _damageLayer;
+
     private Camera _camera;
     private SpriteRenderer _spriteRenderer;
 
@@ -89,6 +95,8 @@ public class PlayButtonController : MonoBehaviour,
         _buttonViewportPosition = _camera.WorldToViewportPoint(transform.position);
 
         _spriteRenderer.sprite = _playSprite;
+
+        _damageLayer.SetActive(false);
     }
 
     public void OnPointerClick(PointerEventData eventData)
@@ -127,6 +135,18 @@ public class PlayButtonController : MonoBehaviour,
             _hammerTrail.emitting = true;
         }
 
+        DamageText[] oldTexts = _damageLayer.GetComponentsInChildren<DamageText>(true);
+
+        foreach (DamageText text in oldTexts)
+        {
+            text.gameObject.SetActive(false);
+            Destroy(text.gameObject);
+        }
+
+        _damageLayer.SetActive(true);
+
+        _restBonnou.enabled = true;
+
         SetEditMode(false);
 
         _spriteRenderer.sprite = _stopSprite;
@@ -158,6 +178,10 @@ public class PlayButtonController : MonoBehaviour,
             _hammerTrail.emitting = false;
             _hammerTrail.Clear();
         }
+
+        _damageLayer.SetActive(false);
+
+        _restBonnou.enabled = false;
 
         _pendulum.EndSimulation();
 
