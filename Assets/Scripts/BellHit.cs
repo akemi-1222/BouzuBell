@@ -25,6 +25,9 @@ public class BellHit : MonoBehaviour
     [SerializeField] private GameObject _damageObject;
     [SerializeField] private Transform _damageTextPos;
 
+    [Header("écÇËîœîYÇÃÉoÅ[")]
+    [SerializeField] private BonnouBar _bonnouBar;
+
     private int _remaining = 108;
     private float _nextHitTime;
 
@@ -37,6 +40,9 @@ public class BellHit : MonoBehaviour
     {
         _remaining = 108;
         _nextHitTime = 0f;
+
+        if (_bonnouBar != null)
+            _bonnouBar.ResetBar();
 
         UpdateText();
     }
@@ -63,6 +69,9 @@ public class BellHit : MonoBehaviour
         int damage = Mathf.Max(1, Mathf.CeilToInt(calculatedDamage));
 
         _remaining = Mathf.Max(0, _remaining - damage);
+
+        if (_bonnouBar != null)
+            _bonnouBar.SetRemaining(_remaining);
 
         UpdateText();
 

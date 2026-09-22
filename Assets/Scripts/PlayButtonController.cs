@@ -44,6 +44,7 @@ public class PlayButtonController : MonoBehaviour,
 
     [Header("プレイ中に表示にする画像")]
     [SerializeField] private TMP_Text _restBonnou;
+    [SerializeField] private GameObject _bonnouBarObject;
 
     [Header("ダメージ表示の親")]
     [SerializeField] private GameObject _damageLayer;
@@ -84,6 +85,9 @@ public class PlayButtonController : MonoBehaviour,
             enabled = false;
             return;
         }
+
+        if (_bonnouBarObject != null)
+            _bonnouBarObject.SetActive(false);
 
         //元に戻せるように開始時の設定を保存する
         _initialCameraSize = _camera.orthographicSize;
@@ -147,6 +151,9 @@ public class PlayButtonController : MonoBehaviour,
 
         _restBonnou.enabled = true;
 
+        if (_bonnouBarObject != null)
+            _bonnouBarObject.SetActive(true);
+
         SetEditMode(false);
 
         _spriteRenderer.sprite = _stopSprite;
@@ -178,6 +185,9 @@ public class PlayButtonController : MonoBehaviour,
             _hammerTrail.emitting = false;
             _hammerTrail.Clear();
         }
+
+        if (_bonnouBarObject != null)
+            _bonnouBarObject.SetActive(false);
 
         _damageLayer.SetActive(false);
 
