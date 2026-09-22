@@ -19,6 +19,9 @@ public class ResultController : MonoBehaviour
     [SerializeField] private SpriteRenderer _background;
     [SerializeField] private Sprite _resultBackground;
 
+    [Header("‚²—˜‰vƒ^ƒCƒ€‚Ì”wŒi")]
+    [SerializeField] private Sprite _benefitBackground;
+
     private Sprite _originalBackground;
     private bool _originalBellVisible;
     private bool _hasFinished;
@@ -40,28 +43,29 @@ public class ResultController : MonoBehaviour
 
         _hasFinished = true;
 
-        //Œ‹‰Ê‚Ì”’l‚ğŠm’è‚·‚é
         _bell.StopReceivingHits();
 
-        int remaining = _bell.Remaining;
-
-        //”Ï”Y‚ª0‚È‚çA¡‰ñ‚ÌŒ‹‰Ê‰æ–Ê‚Í•\¦‚µ‚È‚¢
-        if (remaining <= 0)
-            return;
-
         _happyNewYearText.text = "HAPPY NEW YEAR";
-        _resultText.text = $"âP‚¦‚È‚©‚Á‚½”Ï”Y {remaining}";
+
+        if (_bell.IsBenefitTime)
+        {
+            _resultText.richText = true;
+            _resultText.text =
+                $"<color=#00CC66>æ“¾‚µ‚½‚²—˜‰v {_bell.Benefit}</color>";
+
+            // ‚²—˜‰vƒ^ƒCƒ€‚Ì”wŒi‚ğc‚·
+            _background.sprite = _benefitBackground;
+        }
+        else
+        {
+            _resultText.text = $"âP‚¦‚È‚©‚Á‚½”Ï”Y {_bell.Remaining}";
+            _background.sprite = _resultBackground;
+        }
 
         _resultUI.SetActive(true);
 
-        //’Êí‚Ìà‚Ì‰æ‘œ‚ğ‰B‚µ‚ÄA‚¨³Œ‚Ì‰æ‘œ‚ğ•\¦
         _normalBell.enabled = false;
         _newYearBell.SetActive(true);
-
-        //”wŒi‚ğØ‚è‘Ö‚¦‚é
-        _background.sprite = _resultBackground;
-
-        //U‚èq‚Í~‚ß‚È‚¢
     }
 
     //’â~‚âÄƒvƒŒƒC‚ÉŒ³‚Ì•\¦‚Ö–ß‚·
@@ -74,5 +78,25 @@ public class ResultController : MonoBehaviour
 
         _normalBell.enabled = _originalBellVisible;
         _background.sprite = _originalBackground;
+
+        _bell.ClearBenefits();
+    }
+
+    public void ShowBenefitBackground()
+    {
+        _background.sprite = _benefitBackground;
+    }
+
+    public void ShowBrokenResult()
+    {
+        // Ü‚ê‚½Œã‚Éƒ^ƒCƒ}[‚ªI—¹‚µ‚Ä‚àA
+        // ’Êí‚ÌŒ‹‰Ê‰æ–Ê‚ğ•\¦‚µ‚È‚¢
+        _hasFinished = true;
+
+        // Šù‚É•\¦‚³‚ê‚Ä‚¢‚éŒ‹‰Ê‚àÁ‚·
+        _resultUI.SetActive(false);
+        _newYearBell.SetActive(false);
+
+        _bell.StopReceivingHits();
     }
 }

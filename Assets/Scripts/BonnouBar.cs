@@ -15,6 +15,9 @@ public class BonnouBar : MonoBehaviour
     [Header("Ô‚¢ƒo[‚ªk‚Ş‘¬‚³")]
     [SerializeField, Min(0.01f)] private float _shrinkSpeed = 0.5f;
 
+    [Header("ƒo[‚Ì”wŒi‰æ‘œ")]
+    [SerializeField] private Image _backgroundImage;
+
     private const float MaxBonnou = 108f;
 
     private float _targetFill = 1f;
@@ -28,6 +31,8 @@ public class BonnouBar : MonoBehaviour
 
         _remainingBar.fillAmount = 1f;
         _damageBar.fillAmount = 1f;
+
+        SetBenefitMode(false);
     }
 
     // ƒ_ƒ[ƒW‚ğó‚¯‚½Œã‚Ìc‚è”Ï”Y‚ğ“n‚·
@@ -61,5 +66,16 @@ public class BonnouBar : MonoBehaviour
             _targetFill,
             _shrinkSpeed * Time.deltaTime
         );
+    }
+
+    public void SetBenefitMode(bool isBenefit)
+    {
+        bool showBar = !isBenefit;
+
+        _remainingBar.enabled = showBar;
+        _damageBar.enabled = showBar;
+
+        if (_backgroundImage != null)
+            _backgroundImage.enabled = showBar;
     }
 }

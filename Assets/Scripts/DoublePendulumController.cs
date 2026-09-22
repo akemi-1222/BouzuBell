@@ -411,6 +411,9 @@ public class DoublePendulumController : MonoBehaviour
 
         if (_oretaImage != null)
             _oretaImage.enabled = false;
+
+        if (_bell != null)
+            _bell.gameObject.SetActive(true);
     }
 
     private void UpdateSpinGuard()
@@ -514,6 +517,12 @@ public class DoublePendulumController : MonoBehaviour
         if (remainingTurns <= 0)
         {
             _isBroken = true;
+
+            // ƒ_ƒ[ƒWE‚²—˜‰v‚Ì‰ÁŽZ‚ðŽ~‚ß‚é
+            _bell.StopReceivingHits();
+
+            // à‚Ì•\Ž¦E“–‚½‚è”»’èE“®‚«‚ðŽ~‚ß‚é
+            _bell.gameObject.SetActive(false);
 
             // Œx•¶Žš‚ðÁ‚·
             if (_breakWarningText != null)

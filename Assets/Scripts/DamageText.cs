@@ -17,7 +17,7 @@ public class DamageText : MonoBehaviour
     private float _elapsed;
     private bool _showing;
 
-    public void Show(int damage)
+    public void Show(int damage, bool isBenefit = false)
     {
         if (_text == null)
         {
@@ -39,8 +39,15 @@ public class DamageText : MonoBehaviour
         _text.richText = true;
         _text.color = _startColor;
 
-        //”š‚ğ‘å‚«‚­Au”Ï”Yv‚ğ¬‚³‚­•\¦
-        _text.text = $"{damage}<size=55%>”Ï”Y</size>";
+        if (isBenefit)
+        {
+            _text.text =
+                $"<color=#00CC66>{damage}<size=55%>‚²—˜‰v</size></color>";
+        }
+        else
+        {
+            _text.text = $"{damage}<size=55%>”Ï”Y</size>";
+        }
 
         // 1`16‚Ì”ÍˆÍ‚ÅA‹­‚¢‘ÅŒ‚‚Ù‚Ç­‚µ‘å‚«‚­‚·‚é
         float strength = Mathf.InverseLerp(1f, 16f, damage);

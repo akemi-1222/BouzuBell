@@ -11,15 +11,19 @@ public class GameTimer : MonoBehaviour
 
     private const float LimitTime = 30f;
 
-    private float _remainingTime = LimitTime;
+    private float _endTime;
     private bool _isRunning;
+    private bool _isBenefitTime;
+
+    public bool IsRunning =>
+        _isRunning && Time.time < _endTime;
 
     private void Awake()
     {
         if (_timerText == null)
             _timerText = GetComponent<TMP_Text>();
 
-        UpdateText();
+        _timerText.text = "”N–¾‚¯‚Ü‚ÅŽc‚è30•b";
         _timerText.enabled = false;
     }
 
@@ -28,17 +32,11 @@ public class GameTimer : MonoBehaviour
         if (!_isRunning)
             return;
 
-        _remainingTime = Mathf.Max(
-            0f,
-            _remainingTime - Time.deltaTime
-        );
-
         UpdateText();
 
-        if (_remainingTime > 0f)
+        if (Time.time < _endTime)
             return;
 
-        // ŽžŠÔØ‚ê‚Ìˆ—‚Íˆê“x‚¾‚¯s‚¤
         _isRunning = false;
         _timerText.enabled = false;
 
@@ -49,19 +47,35 @@ public class GameTimer : MonoBehaviour
     {
         _resultController.ResetResult();
 
-        _remainingTime = LimitTime;
+        _endTime = Time.time + LimitTime;
         _isRunning = true;
+        _isBenefitTime = false;
 
         _timerText.enabled = true;
         UpdateText();
     }
 
+    public bool StartBenefitTime()
+    {
+        // ŽžŠÔØ‚êŒã‚âA2‰ñ–ÚˆÈ~‚Ì‰ÁŽZ‚Í‚µ‚È‚¢
+        if (!IsRunning || _isBenefitTime)
+            return false;
+
+        _isBenefitTime = true;
+        _endTime += 10f;
+
+        _resultController.ShowBenefitBackground();
+        UpdateText();
+
+        return true;
+    }
+
     public void ResetTimer()
     {
         _isRunning = false;
-        _remainingTime = LimitTime;
+        _isBenefitTime = false;
 
-        UpdateText();
+        _timerText.text = "”N–¾‚¯‚Ü‚ÅŽc‚è30•b";
         _timerText.enabled = false;
 
         _resultController.ResetResult();
@@ -69,7 +83,8 @@ public class GameTimer : MonoBehaviour
 
     private void UpdateText()
     {
-        int seconds = Mathf.CeilToInt(_remainingTime);
+        float remaining = Mathf.Max(0f, _endTime - Time.time);
+        int seconds = Mathf.CeilToInt(remaining);
 
         _timerText.text = $"”N–¾‚¯‚Ü‚ÅŽc‚è{seconds}•b";
     }
