@@ -2445,7 +2445,7 @@ MonoBehaviour:
   _remainingText: {fileID: 1350872558}
   _damageText: {fileID: 225458453}
   _damageScale: 0.01
-  _damageExponent: 1.36
+  _damageExponent: 1.246
   _minimumImpact: 0.1
   _hitInterval: 0.15
   _showHitLog: 1
@@ -2509,7 +2509,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43ad3be7feb71394d9ea1758937f542b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BellMotion
-  _returnPower: 10
+  _returnPower: 7
   _moveDamping: 5
   _rotationPower: 15
   _rotationDamping: 5

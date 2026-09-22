@@ -3,7 +3,7 @@ using UnityEngine;
 public class HammerHit : MonoBehaviour
 {
     //–½’†‚É’Ç‰Á‚·‚é‰ñ“]‘¬“xF“x^•b
-    private const float ExtraRotationSpeed = 30f;
+    private const float ExtraRotationSpeed = 100f;
 
     //–½’†•â•‚Å–Úw‚·‰ñ“]‘¬“x‚ÌãŒÀ
     private const float BoostSpeedLimit = 300f;

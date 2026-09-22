@@ -230,7 +230,7 @@ public class DoublePendulumController : MonoBehaviour
         body.useGravity = false;
 
         body.linearDamping = 0f;
-        body.angularDamping = 0f;
+        body.angularDamping = 0.05f;
         body.jointFriction = 0f;
 
         // 関節のバネとモーターは使わない
@@ -282,19 +282,31 @@ public class DoublePendulumController : MonoBehaviour
         Vector3 gravity =
             Physics.gravity * Mathf.Clamp(_gravityMultiplier, 1f, 3f);
 
-        _lastDirection1 =
-            ApplyForces(_firstBody, gravity, _lastDirection1);
+        //第１アーム：弱めに補助する
+        _lastDirection1 = ApplyForces(
+            _firstBody,
+            gravity,
+            _lastDirection1,
+            0.2f
+        );
 
-        _lastDirection2 =
-            ApplyForces(_secondBody, gravity, _lastDirection2);
+        //第２アーム：これまでの強さで補助する
+        _lastDirection2 = ApplyForces(
+            _secondBody,
+            gravity,
+            _lastDirection2,
+            1f
+        );
     }
 
     // 力を加え、覚えておく回転方向を返す
     private float ApplyForces(
-        ArticulationBody body,
-        Vector3 gravity,
-        float direction)
+    ArticulationBody body,
+    Vector3 gravity,
+    float direction,
+    float assistRate)
     {
+        // 重力を加える
         body.AddForce(gravity * body.mass, ForceMode.Force);
 
         if (_assistTorque <= 0f)
@@ -303,28 +315,34 @@ public class DoublePendulumController : MonoBehaviour
         float speed = body.angularVelocity.z;
         float absoluteSpeed = Mathf.Abs(speed);
 
-        // 実際に動いた方向を覚える
-        if (absoluteSpeed > 0.05f)
-        {
-            direction = Mathf.Sign(speed);
-        }
-
-        // 動き始めるまでは、重力だけに任せる
-        if (direction == 0f)
-            return direction;
-
         float speedLimit =
             Mathf.Max(1f, _assistBelowSpeed) * Mathf.Deg2Rad;
 
+        // 十分速いときは、補助しない
         if (absoluteSpeed >= speedLimit)
             return direction;
 
+        // 停止付近では補助を弱める。
+        // 回転方向が変わっても、力が急に反転しないようにする。
+        const float smoothSpeed = 0.5f;
+
+        float smoothDirection =
+            speed / Mathf.Sqrt(
+                speed * speed + smoothSpeed * smoothSpeed
+            );
+
+        // 速くなるほど補助を弱める
         float strength = 1f - absoluteSpeed / speedLimit;
-        float torque = direction * _assistTorque * strength;
 
-        body.AddTorque(Vector3.forward * torque, ForceMode.Force);
+        float torque =
+    smoothDirection * _assistTorque * strength * assistRate;
 
-        return direction;
+        body.AddTorque(
+            Vector3.forward * torque,
+            ForceMode.Force
+        );
+
+        return smoothDirection;
     }
 
     // 物理計算の結果に画像を合わせる
