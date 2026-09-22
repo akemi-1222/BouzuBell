@@ -7,14 +7,24 @@ public class BellHit : MonoBehaviour
     [SerializeField] private TMP_Text _remainingText;
     [SerializeField] private TMP_Text _damageText;
 
-    [Header("衝突の強さをダメージに変換する倍率")]
-    [SerializeField, Min(0f)] private float _damageScale = 0.2f;
+    [Header("ダメージ全体の倍率")]
+    [SerializeField, Min(0f)]
+    private float _damageScale = 0.01f;
 
-    [Header("これより弱い衝突は無視する")]
-    [SerializeField, Min(0f)] private float _minimumImpact = 0.1f;
+    [Header("強弱の差：1なら威力に比例")]
+    [SerializeField, Range(0.5f, 2f)]
+    private float _damageExponent = 1f;
+
+    [Header("これより弱い威力は無視する")]
+    [SerializeField, Min(0f)]
+    private float _minimumImpact = 0.1f;
 
     [Header("連続命中を防ぐ間隔：秒")]
-    [SerializeField, Min(0f)] private float _hitInterval = 0.15f;
+    [SerializeField, Min(0f)]
+    private float _hitInterval = 0.15f;
+
+    [Header("調整用のログを表示する")]
+    [SerializeField] private bool _showHitLog = true;
 
     private int _remaining = 108;
     private float _nextHitTime;
@@ -24,7 +34,6 @@ public class BellHit : MonoBehaviour
         ResetBell();
     }
 
-    // プレイ開始時に呼ぶ
     public void ResetBell()
     {
         _remaining = 108;
@@ -38,13 +47,12 @@ public class BellHit : MonoBehaviour
         UpdateText();
     }
 
-    // 命中を受け付けた場合はtrueを返す
-    public bool ReceiveHit(float impact)
+    public bool ReceiveHit(float power)
     {
         if (_remaining <= 0)
             return false;
 
-        if (impact < _minimumImpact)
+        if (power <= 0f || power < _minimumImpact)
             return false;
 
         if (Time.time < _nextHitTime)
@@ -52,10 +60,16 @@ public class BellHit : MonoBehaviour
 
         _nextHitTime = Time.time + _hitInterval;
 
-        // 衝突が強いほどダメージを増やす
+        // まず、ダメージ全体の大きさを決める
+        float baseDamage = power * _damageScale;
+
+        // 強い打撃と弱い打撃の差を調整する
+        float calculatedDamage =
+            Mathf.Pow(baseDamage, _damageExponent);
+
         int damage = Mathf.Max(
             1,
-            Mathf.CeilToInt(impact * _damageScale)
+            Mathf.CeilToInt(calculatedDamage)
         );
 
         _remaining = Mathf.Max(0, _remaining - damage);
@@ -66,6 +80,16 @@ public class BellHit : MonoBehaviour
         }
 
         UpdateText();
+
+        if (_showHitLog)
+        {
+            Debug.Log(
+                $"命中：威力={power:F2} / " +
+                $"基本値={baseDamage:F2}/" +
+                $"ダメージ={damage}",
+                this
+            );
+        }
 
         return true;
     }
