@@ -144,7 +144,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 107132030}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
@@ -1863,6 +1863,7 @@ GameObject:
   - component: {fileID: 519420029}
   - component: {fileID: 519420030}
   - component: {fileID: 519420033}
+  - component: {fileID: 519420034}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -2004,6 +2005,21 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   m_MaxRayIntersections: 0
+--- !u!114 &519420034
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 519420028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b40fbbe1ce9586419506faa8c103186, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CameraShake
+  _duration: 0.45
+  _smallShake: 1
+  _largeShake: 1.5
 --- !u!1 &540921295
 GameObject:
   m_ObjectHideFlags: 0
@@ -2668,6 +2684,7 @@ MonoBehaviour:
   _restBonnou: {fileID: 1350872558}
   _bonnouBarObject: {fileID: 220980441}
   _damageLayer: {fileID: 959931983}
+  _cameraShake: {fileID: 519420034}
 --- !u!58 &669991976
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -3652,6 +3669,7 @@ MonoBehaviour:
   _background: {fileID: 488433557}
   _resultBackground: {fileID: -1641259752620419291, guid: af4e743707553c14ea123052bb0c585f, type: 3}
   _benefitBackground: {fileID: 1739144540449642965, guid: 93d2af617f808804a84c8759580cc892, type: 3}
+  _bottomText: {fileID: 1350872558}
 --- !u!1 &1204121936
 GameObject:
   m_ObjectHideFlags: 0
@@ -5710,6 +5728,10 @@ PrefabInstance:
       propertyPath: _bonnouBar
       value: 
       objectReference: {fileID: 220980445}
+    - target: {fileID: 6768985021309541036, guid: 2f0c3c98a927a6843b92dce2e72c64ac, type: 3}
+      propertyPath: _cameraShake
+      value: 
+      objectReference: {fileID: 519420034}
     - target: {fileID: 6768985021309541036, guid: 2f0c3c98a927a6843b92dce2e72c64ac, type: 3}
       propertyPath: _benefitPrefab
       value: 

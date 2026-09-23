@@ -39,6 +39,9 @@ public class BellHit : MonoBehaviour
     [Header("‚²—˜‰v‚Ì‰æ‘œPrefab")]
     [SerializeField] private GameObject _benefitPrefab;
 
+    [Header("‚²—˜‰vƒ^ƒCƒ€‚Ì‰æ–Ê—h‚ê")]
+    [SerializeField] private CameraShake _cameraShake;
+
     private int _remaining = 108;
     private int _benefit;
     private float _nextHitTime;
@@ -111,8 +114,10 @@ public class BellHit : MonoBehaviour
         {
             _benefit += damage;
 
-            // ¡‰ñŠl“¾‚µ‚½‚²—˜‰v‚ğ“n‚·
             SpawnBenefit(damage);
+
+            if (_cameraShake != null)
+                _cameraShake.Shake(damage);
         }
         else
         {
@@ -124,6 +129,9 @@ public class BellHit : MonoBehaviour
             if (_remaining == 0 && _timer.StartBenefitTime())
             {
                 _isBenefitTime = true;
+
+                // ‚²—˜‰v‚Í108‚©‚çŠJn
+                _benefit = 108;
 
                 if (_bonnouBar != null)
                     _bonnouBar.SetBenefitMode(true);

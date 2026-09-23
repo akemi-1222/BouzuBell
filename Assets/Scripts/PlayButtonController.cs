@@ -49,6 +49,9 @@ public class PlayButtonController : MonoBehaviour,
     [Header("ダメージ表示の親")]
     [SerializeField] private GameObject _damageLayer;
 
+    [Header("画面の揺れ")]
+    [SerializeField] private CameraShake _cameraShake;
+
     private Camera _camera;
     private SpriteRenderer _spriteRenderer;
 
@@ -121,6 +124,9 @@ public class PlayButtonController : MonoBehaviour,
 
     private void StartPlay()
     {
+        if (_cameraShake != null)
+            _cameraShake.StopShake();
+
         // 物理演算を準備できなかった場合は開始しない
         if (_pendulum == null || !_pendulum.BeginSimulation())
         {
@@ -180,6 +186,9 @@ public class PlayButtonController : MonoBehaviour,
 
     private void StopPlay()
     {
+        if (_cameraShake != null)
+            _cameraShake.StopShake();
+
         if (_hammerTrail != null)
         {
             _hammerTrail.emitting = false;

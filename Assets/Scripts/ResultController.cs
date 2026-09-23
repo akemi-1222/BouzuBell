@@ -22,6 +22,9 @@ public class ResultController : MonoBehaviour
     [Header("‚²—˜‰vƒ^ƒCƒ€‚Ì”wŒi")]
     [SerializeField] private Sprite _benefitBackground;
 
+    [Header("‰æ–Ê‰º‚Ìc‚è”Ï”YE‚²—˜‰vƒeƒLƒXƒg")]
+    [SerializeField] private TMP_Text _bottomText;
+
     private Sprite _originalBackground;
     private bool _originalBellVisible;
     private bool _hasFinished;
@@ -42,23 +45,34 @@ public class ResultController : MonoBehaviour
             return;
 
         _hasFinished = true;
-
         _bell.StopReceivingHits();
 
-        _happyNewYearText.text = "HAPPY NEW YEAR";
+        _happyNewYearText.richText = true;
+        _resultText.richText = true;
 
         if (_bell.IsBenefitTime)
         {
-            _resultText.richText = true;
+            // ‚²—˜‰vƒ^ƒCƒ€‚ÌŒ‹‰Ê‚Í—ÎF
+            _happyNewYearText.text =
+                "<color=#00CC66>HAPPY NEW YEAR</color>";
+
             _resultText.text =
                 $"<color=#00CC66>æ“¾‚µ‚½‚²—˜‰v {_bell.Benefit}</color>";
 
-            // ‚²—˜‰vƒ^ƒCƒ€‚Ì”wŒi‚ğc‚·
             _background.sprite = _benefitBackground;
+
+            // ‰æ–Ê‰º‚Ìæ“¾”‚ğ‰B‚·
+            if (_bottomText != null)
+                _bottomText.enabled = false;
         }
         else
         {
-            _resultText.text = $"âP‚¦‚È‚©‚Á‚½”Ï”Y {_bell.Remaining}";
+            // ’Êí‚ÌŒ‹‰Ê‚ÍInspector‚Åİ’è‚µ‚½F
+            _happyNewYearText.text = "HAPPY NEW YEAR";
+
+            _resultText.text =
+                $"âP‚¦‚È‚©‚Á‚½”Ï”Y {_bell.Remaining}";
+
             _background.sprite = _resultBackground;
         }
 

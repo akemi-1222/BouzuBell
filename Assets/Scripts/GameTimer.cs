@@ -12,6 +12,8 @@ public class GameTimer : MonoBehaviour
     [Header("ご利益タイムのBGM")]
     [SerializeField] private AudioSource _benefitBGM;
 
+    private Color _normalTimerColor;
+
     private const float LimitTime = 30f;
 
     private float _endTime;
@@ -25,6 +27,8 @@ public class GameTimer : MonoBehaviour
     {
         if (_timerText == null)
             _timerText = GetComponent<TMP_Text>();
+
+        _normalTimerColor = _timerText.color;
 
         _timerText.text = "年明けまで残り30秒";
         _timerText.enabled = false;
@@ -91,6 +95,7 @@ public class GameTimer : MonoBehaviour
         _isBenefitTime = false;
 
         _timerText.text = "年明けまで残り30秒";
+        _timerText.color = _normalTimerColor;
         _timerText.enabled = false;
 
         _resultController.ResetResult();
@@ -101,6 +106,22 @@ public class GameTimer : MonoBehaviour
         float remaining = Mathf.Max(0f, _endTime - Time.time);
         int seconds = Mathf.CeilToInt(remaining);
 
-        _timerText.text = $"年明けまで残り{seconds}秒";
+        // テキスト全体の色は通常に戻す
+        _timerText.color = _normalTimerColor;
+        _timerText.richText = true;
+
+        string number = seconds.ToString();
+
+        if (seconds >= 1 && seconds <= 5)
+        {
+            float elapsed = 5f - remaining;
+            bool visible = Mathf.Repeat(elapsed, 0.5f) < 0.25f;
+
+            // 数字だけ、赤色と透明を切り替える
+            string color = visible ? "#FF0000FF" : "#FF000000";
+            number = $"<color={color}>{seconds}</color>";
+        }
+
+        _timerText.text = $"年明けまで残り{number}秒";
     }
 }
